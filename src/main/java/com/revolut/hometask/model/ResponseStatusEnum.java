@@ -1,10 +1,10 @@
-package model;
+package com.revolut.hometask.model;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
-public enum ResponceStatusEnum {
+public enum ResponseStatusEnum {
 
     SUCCESS ("Success"),
     ERROR ("Error");

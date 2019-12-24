@@ -1,11 +1,9 @@
-package model;
+package com.revolut.hometask.model;
 
 import java.math.BigDecimal;
-import java.util.UUID;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.RequiredArgsConstructor;
 
 @Data
 @AllArgsConstructor

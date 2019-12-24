@@ -1,4 +1,4 @@
-package dao;
+package com.revolut.hometask.dao;
 
 import java.math.BigDecimal;
 import java.sql.Connection;
@@ -6,15 +6,11 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.text.MessageFormat;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
 
 import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.extern.slf4j.Slf4j;
-import model.Account;
-import org.apache.commons.lang3.StringUtils;
+import com.revolut.hometask.model.Account;
 
 @AllArgsConstructor
 public class AccountsDao {
@@ -36,22 +32,19 @@ public class AccountsDao {
         statement.close();
     }
 
-    public Account getAccountById(int id) {
+    public Account getAccountById(int id) throws SQLException {
         Account result = null;
-        try {
-            Statement statement = connection.createStatement();
-            ResultSet rs = statement.executeQuery(MessageFormat.format(SELECT_ACC_BY_ID, id));
-            while (rs.next()) {
-                result = new Account(rs.getInt("account_id"),
-                        rs.getString("owner"),
-                        rs.getBigDecimal("balance"),
-                        rs.getString("currency"));
-            }
-            rs.close();
-            statement.closeOnCompletion();
-        } catch (SQLException e) {
-            e.printStackTrace();
+
+        Statement statement = connection.createStatement();
+        ResultSet rs = statement.executeQuery(MessageFormat.format(SELECT_ACC_BY_ID, id));
+        while (rs.next()) {
+            result = new Account(rs.getInt("account_id"),
+                    rs.getString("owner"),
+                    rs.getBigDecimal("balance"),
+                    rs.getString("currency"));
         }
+        rs.close();
+        statement.closeOnCompletion();
 
         return result;
     }

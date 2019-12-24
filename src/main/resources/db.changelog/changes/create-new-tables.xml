@@ -37,10 +37,10 @@
       <column name="transaction_id" type="int" autoIncrement="true">
         <constraints nullable="false"/>
       </column>
-      <column name="account_from" type="int">
+      <column name="debit_account" type="int">
         <constraints nullable="false"/>
       </column>
-      <column name="account_to" type="int">
+      <column name="credit_account" type="int">
         <constraints nullable="false"/>
       </column>
       <column name="amount" type="numeric(8, 2)">
