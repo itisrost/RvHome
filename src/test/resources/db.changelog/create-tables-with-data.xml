@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                   http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.6.xsd">
+
+  <changeSet id="add-accounts-table" author="RM">
+    <createTable tableName="accounts">
+      <column name="account_id" type="int" autoIncrement="true">
+        <constraints nullable="false"/>
+      </column>
+      <column name="owner" type="varchar(40)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="balance" type="numeric(8, 2)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="currency" type="varchar(3)">
+        <constraints nullable="false"/>
+      </column>
+    </createTable>
+  </changeSet>
+
+  <changeSet id="add-accounts-primary-key" author="RM">
+    <addPrimaryKey tableName="accounts" columnNames="account_id" constraintName="pk_account_id"/>
+  </changeSet>
+
+
+  <changeSet id="add-transactions-table" author="RM">
+    <createTable tableName="transactions">
+      <column name="transaction_id" type="int" autoIncrement="true">
+        <constraints nullable="false"/>
+      </column>
+      <column name="debit_account" type="int">
+        <constraints nullable="false"/>
+      </column>
+      <column name="credit_account" type="int">
+        <constraints nullable="false"/>
+      </column>
+      <column name="amount" type="numeric(8, 2)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="currency" type="varchar(3)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="date" type="timestamp">
+        <constraints nullable="false"/>
+      </column>
+    </createTable>
+  </changeSet>
+
+  <changeSet id="add-transactions-primary-key" author="RM">
+    <addPrimaryKey tableName="transactions" columnNames="transaction_id" constraintName="pk_transaction_id"/>
+  </changeSet>
+
+  <changeSet id="add-transactions-accounts-index" author="RM">
+    <createIndex tableName="transactions" indexName="idx_transactions_accounts">
+      <column name="debit_account"/>
+      <column name="credit_account"/>
+    </createIndex>
+  </changeSet>
+
+  <changeSet id="insert-test-data" author="RM">
+    <insert tableName="accounts">
+      <column name="owner" value="Rost Morozov"/>
+      <column name="balance" value="10000"/>
+      <column name="currency" value="RUR"/>
+    </insert>
+    <insert tableName="accounts">
+      <column name="owner" value="Ivan Ivanov"/>
+      <column name="balance" value="15000"/>
+      <column name="currency" value="RUR"/>
+    </insert>
+    <insert tableName="accounts">
+      <column name="owner" value="Petr Petrov"/>
+      <column name="balance" value="20000"/>
+      <column name="currency" value="RUR"/>
+    </insert>
+
+    <insert tableName="transactions">
+      <column name="debit_account" value="1"/>
+      <column name="credit_account" value="2"/>
+      <column name="amount" value="2000"/>
+      <column name="currency" value="RUR"/>
+      <column name="date" value="2019-12-25 10:00:00"/>
+    </insert>
+    <insert tableName="transactions">
+      <column name="debit_account" value="2"/>
+      <column name="credit_account" value="3"/>
+      <column name="amount" value="5000"/>
+      <column name="currency" value="RUR"/>
+      <column name="date" value="2019-12-25 10:05:00"/>
+    </insert>
+  </changeSet>
+
+ </databaseChangeLog>

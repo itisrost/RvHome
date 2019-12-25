@@ -25,12 +25,6 @@
     <addPrimaryKey tableName="accounts" columnNames="account_id" constraintName="pk_account_id"/>
   </changeSet>
 
-  <changeSet id="add-accounts-id-index" author="RM">
-    <createIndex tableName="accounts" indexName="idx_account_id">
-      <column name="account_id"/>
-    </createIndex>
-  </changeSet>
-
 
   <changeSet id="add-transactions-table" author="RM">
     <createTable tableName="transactions">
@@ -46,6 +40,9 @@
       <column name="amount" type="numeric(8, 2)">
         <constraints nullable="false"/>
       </column>
+      <column name="currency" type="varchar(3)">
+        <constraints nullable="false"/>
+      </column>
       <column name="date" type="timestamp">
         <constraints nullable="false"/>
       </column>
@@ -56,24 +53,11 @@
     <addPrimaryKey tableName="transactions" columnNames="transaction_id" constraintName="pk_transaction_id"/>
   </changeSet>
 
-  <changeSet id="add-transactions-id-index" author="RM">
-    <createIndex tableName="transactions" indexName="idx_transaction_id">
-      <column name="transaction_id"/>
+  <changeSet id="add-transactions-accounts-index" author="RM">
+    <createIndex tableName="transactions" indexName="idx_transactions_accounts">
+      <column name="debit_account"/>
+      <column name="credit_account"/>
     </createIndex>
-  </changeSet>
-
-
-  <changeSet id="insert-accounts" author="RM">
-    <insert tableName="accounts">
-      <column name="owner" value="Rost Morozov"/>
-      <column name="balance" value="10000"/>
-      <column name="currency" value="RUB"/>
-    </insert>
-    <insert tableName="accounts">
-      <column name="owner" value="Ivan Ivanov"/>
-      <column name="balance" value="10000"/>
-      <column name="currency" value="RUB"/>
-    </insert>
   </changeSet>
 
  </databaseChangeLog>

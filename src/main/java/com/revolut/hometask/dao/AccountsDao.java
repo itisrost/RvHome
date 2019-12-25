@@ -67,14 +67,15 @@ public class AccountsDao {
         return result;
     }
 
-    public void updateBalance(int accountId, BigDecimal amount) throws SQLException {
+    public Boolean updateBalance(int accountId, BigDecimal amount) throws SQLException {
         PreparedStatement preparedStatement = connection.prepareStatement(UPDATE_BALANCE_BY_ID);
         preparedStatement.setBigDecimal(1, amount);
         preparedStatement.setInt(2, accountId);
         int updated = preparedStatement.executeUpdate();
         preparedStatement.close();
         if (updated != 1) {
-            throw new SQLException("No accs updated");
+            return false;
         }
+        return true;
     }
 }

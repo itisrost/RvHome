@@ -2,6 +2,7 @@ package com.revolut.hometask.controllers;
 
 import java.math.BigDecimal;
 import java.sql.SQLException;
+import java.util.Collection;
 
 import com.revolut.hometask.dao.TransactionsDao;
 import com.revolut.hometask.model.Transaction;
@@ -45,18 +46,37 @@ public class TransactionsController {
         return new BaseResponse(ResponseStatusEnum.SUCCESS, null, transaction);
     }
 
-    public BaseResponse createTransaction(String debitAccount, String creditAccount, String amount) {
+    public BaseResponse getTransactionsByAccountId(String id) {
+        Collection<Transaction> transactions;
 
-        if (StringUtils.isBlank(debitAccount)) {
-            return new BaseResponse(ResponseStatusEnum.ERROR, "Query parameter debitAccount is empty.", null);
-        } else if (StringUtils.isBlank(creditAccount)) {
-            return new BaseResponse(ResponseStatusEnum.ERROR, "Query parameter creditAccount is empty.", null);
+        try {
+            transactions = transactionsDao.getTransactionsByAccountId(Integer.parseInt(id));
+        } catch (SQLException e) {
+            log.error("SQLException", e);
+            return new BaseResponse(ResponseStatusEnum.ERROR, e.getMessage(), null);
+        } catch (NumberFormatException e) {
+            return new BaseResponse(ResponseStatusEnum.ERROR, "Account id must be a number!", null);
+        }
+
+        if (transactions.isEmpty()) {
+            return new BaseResponse(ResponseStatusEnum.ERROR, "Transactions from/to account with id=" + id + " not found.", null);
+        }
+
+        return new BaseResponse(ResponseStatusEnum.SUCCESS, null, transactions);
+    }
+
+    public BaseResponse createTransaction(String debitAccountId, String creditAccountId, String amount) {
+
+        if (StringUtils.isBlank(debitAccountId)) {
+            return new BaseResponse(ResponseStatusEnum.ERROR, "Query parameter debitAccountId is empty.", null);
+        } else if (StringUtils.isBlank(creditAccountId)) {
+            return new BaseResponse(ResponseStatusEnum.ERROR, "Query parameter creditAccountId is empty.", null);
         } else if (StringUtils.isBlank(amount)) {
             return new BaseResponse(ResponseStatusEnum.ERROR, "Query parameter amount is empty.", null);
         }
 
         try {
-            transactionsDao.makeTransaction(Integer.parseInt(debitAccount), Integer.parseInt(creditAccount), new BigDecimal(amount));
+            transactionsDao.addTransaction(Integer.parseInt(debitAccountId), Integer.parseInt(creditAccountId), new BigDecimal(amount));
             log.info("Transaction created");
             return new BaseResponse(ResponseStatusEnum.SUCCESS, "Transaction saved.", null);
         } catch (SQLException e) {

@@ -39,7 +39,7 @@ public class RvlService {
         try {
             Connection liquibaseConnection = getConnection();
             Database database = DatabaseFactory.getInstance().findCorrectDatabaseImplementation(new JdbcConnection(liquibaseConnection));
-            Liquibase liquibase = new liquibase.Liquibase("db.changelog/changelog-master.xml", new ClassLoaderResourceAccessor(), database);
+            Liquibase liquibase = new liquibase.Liquibase("db.changelog/create-tables.xml", new ClassLoaderResourceAccessor(), database);
             liquibase.update(new Contexts(), new LabelExpression());
             if (liquibaseConnection != null) {
                 liquibaseConnection.close();
@@ -72,10 +72,15 @@ public class RvlService {
                 return writeJson(transactionsController.getTransactionById(req.params(":id")));
             });
 
+            get("/transactions/account/:id", (req, res) -> {
+                res.type("application/json");
+                return writeJson(transactionsController.getTransactionsByAccountId(req.params(":id")));
+            });
+
             post("/transactions", (req, res) -> {
                 res.type("application/json");
-                return writeJson(transactionsController.createTransaction(req.queryParams("debitAccount"),
-                        req.queryParams("creditAccount"),
+                return writeJson(transactionsController.createTransaction(req.queryParams("debitAccountId"),
+                        req.queryParams("creditAccountId"),
                         req.queryParams("amount")));
             });
 

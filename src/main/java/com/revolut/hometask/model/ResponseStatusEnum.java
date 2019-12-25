@@ -11,5 +11,4 @@ public enum ResponseStatusEnum {
 
     @Getter
     private final String name;
-
 }

@@ -7,33 +7,44 @@ import com.revolut.hometask.dao.AccountsDao;
 import com.revolut.hometask.model.Account;
 import com.revolut.hometask.model.BaseResponse;
 import com.revolut.hometask.model.ResponseStatusEnum;
+import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.stubbing.Answer;
 
 import static org.junit.Assert.*;
+import static org.mockito.MockitoAnnotations.initMocks;
 
 public class AccountsControllerTest {
 
-    AccountsDao accountsDaoMock = Mockito.mock(AccountsDao.class);
-    AccountsController accountsController = new AccountsController(accountsDaoMock);
+    AccountsController accountsController;
+
+    @Mock
+    AccountsDao accountsDaoMock;
+
+    @Before
+    public void setUp() {
+        initMocks(this);
+        accountsController = new AccountsController(accountsDaoMock);
+    }
 
     @Test
-    public void getAccountWithNotNumericId() {
+    public void getAccountById_WithNotNumericId() {
         BaseResponse response = accountsController.getAccountById("aaa");
         assertEquals(ResponseStatusEnum.ERROR, response.getStatus());
         assertEquals("Account id must be a number!", response.getMessage());
     }
 
     @Test
-    public void getNotExistingAccount() {
+    public void getAccountById_NotExisting() {
         BaseResponse response = accountsController.getAccountById("2");
         assertEquals(ResponseStatusEnum.ERROR, response.getStatus());
         assertEquals("Account with id=2 not found.", response.getMessage());
     }
 
     @Test
-    public void getAccountSuccess() throws Exception {
+    public void getAccountById_Success() throws Exception {
         Account account = new Account(1, "Ivan Ivanov", new BigDecimal(10000), "RUB");
         Answer<Account> accountAnswer = invocation -> account;
 
@@ -46,35 +57,35 @@ public class AccountsControllerTest {
     }
 
     @Test
-    public void createAccountWithoutOwner() {
+    public void createAccount_WithoutOwner() {
         BaseResponse response = accountsController.createAccount("Ivan Ivanov", "10000", null);
         assertEquals(ResponseStatusEnum.ERROR, response.getStatus());
         assertEquals("Query parameter currency is empty.", response.getMessage());
     }
 
     @Test
-    public void createAccountWithoutBalance() {
+    public void createAccount_WithoutBalance() {
         BaseResponse response = accountsController.createAccount("Ivan Ivanov", null, "RUB");
         assertEquals(ResponseStatusEnum.ERROR, response.getStatus());
         assertEquals("Query parameter balance is empty.", response.getMessage());
     }
 
     @Test
-    public void createAccountWithoutCurrency() {
+    public void createAccount_WithoutCurrency() {
         BaseResponse response = accountsController.createAccount(null, "10000", "RUB");
         assertEquals(ResponseStatusEnum.ERROR, response.getStatus());
         assertEquals("Query parameter owner is empty.", response.getMessage());
     }
 
     @Test
-    public void createAccountWithNotNumericBalance() {
+    public void createAccount_WithNotNumericBalance() {
         BaseResponse response = accountsController.createAccount("Ivan Ivanov", "a lot!", "RUB");
         assertEquals(ResponseStatusEnum.ERROR, response.getStatus());
         assertEquals("Balance should be a number!", response.getMessage());
     }
 
     @Test
-    public void createAccountSuccess() {
+    public void createAccount_Success() {
         BaseResponse response = accountsController.createAccount("Ivan Ivanov", "10000", "RUB");
         assertEquals(ResponseStatusEnum.SUCCESS, response.getStatus());
         assertEquals("Account saved.", response.getMessage());

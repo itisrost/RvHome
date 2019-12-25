@@ -10,10 +10,11 @@ import lombok.Data;
 @Data
 @AllArgsConstructor
 public class Transaction {
-    private Integer transactionId;
-    private Integer debitAccount;
-    private Integer creditAccount;
+    private int transactionId;
+    private int debitAccount;
+    private int creditAccount;
     private BigDecimal amount;
+    private String currency;
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy HH:mm:ss")
     private LocalDateTime date;
