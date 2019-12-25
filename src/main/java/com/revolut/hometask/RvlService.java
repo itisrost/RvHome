@@ -19,58 +19,69 @@ import liquibase.database.Database;
 import liquibase.database.DatabaseFactory;
 import liquibase.database.jvm.JdbcConnection;
 import liquibase.resource.ClassLoaderResourceAccessor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import static spark.Spark.*;
 
 public class RvlService {
 
-    private static final Logger logger = LoggerFactory.getLogger(RvlService.class);
-
     private static ObjectMapper objectMapper = getObjectMapper();
+
+    private static AccountsController accountsController;
+    private static TransactionsController transactionsController;
 
     public static void main(String[] args) {
 
         Connection connection = getConnection();
 
-        AccountsController accountsController = new AccountsController(new AccountsDao(connection));
-        TransactionsController transactionsController = new TransactionsController(new TransactionsDao(connection, new AccountsDao(connection)));
+        accountsController = new AccountsController(new AccountsDao(connection));
+        transactionsController = new TransactionsController(new TransactionsDao(connection, new AccountsDao(connection)));
 
         try {
-
-            Database database = DatabaseFactory.getInstance().findCorrectDatabaseImplementation(new JdbcConnection(connection));
+            Connection liquibaseConnection = getConnection();
+            Database database = DatabaseFactory.getInstance().findCorrectDatabaseImplementation(new JdbcConnection(liquibaseConnection));
             Liquibase liquibase = new liquibase.Liquibase("db.changelog/changelog-master.xml", new ClassLoaderResourceAccessor(), database);
             liquibase.update(new Contexts(), new LabelExpression());
+            if (liquibaseConnection != null) {
+                liquibaseConnection.close();
+            }
+
+            get("/accounts", (req, res) -> {
+                res.type("application/json");
+                return writeJson(accountsController.getAccounts());
+            });
+
+            get("/accounts/:id", (req, res) -> {
+                res.type("application/json");
+                return writeJson(accountsController.getAccountById(req.params(":id")));
+            });
+
+            post("/accounts", (req, res) -> {
+                res.type("application/json");
+                return writeJson(accountsController.createAccount(req.queryParams("owner"),
+                        req.queryParams("balance"),
+                        req.queryParams("currency")));
+            });
+
+            get("/transactions", (req, res) -> {
+                res.type("application/json");
+                return writeJson(transactionsController.getTransactions());
+            });
+
+            get("/transactions/:id", (req, res) -> {
+                res.type("application/json");
+                return writeJson(transactionsController.getTransactionById(req.params(":id")));
+            });
+
+            post("/transactions", (req, res) -> {
+                res.type("application/json");
+                return writeJson(transactionsController.createTransaction(req.queryParams("debitAccount"),
+                        req.queryParams("creditAccount"),
+                        req.queryParams("amount")));
+            });
 
         } catch (Exception e) {
             e.printStackTrace();
         }
-
-        get("/accounts/:id", (req, res) -> {
-            res.type("application/json");
-            return writeJson(accountsController.getAccountById(req.params(":id")));
-        });
-
-        get("/accounts", (req, res) -> {
-            res.type("application/json");
-            return writeJson(accountsController.getAccounts());
-        });
-
-        post("/accounts", (req, res) -> {
-            res.type("application/json");
-            return writeJson(accountsController.createAccount(req));
-        });
-
-        get("/transactions", (req, res) -> {
-            res.type("application/json");
-            return writeJson(transactionsController.getTransactions());
-        });
-
-        post("/transactions", (req, res) -> {
-            res.type("application/json");
-            return writeJson(transactionsController.createTransaction(req));
-        });
     }
 
     // UTILS
@@ -79,7 +90,9 @@ public class RvlService {
         String user = "sa";
         String passwd = "sa";
         try {
-            return DriverManager.getConnection(url, user, passwd);
+            Connection connection = DriverManager.getConnection(url, user, passwd);
+            connection.setTransactionIsolation(Connection.TRANSACTION_SERIALIZABLE);
+            return connection;
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -94,7 +107,7 @@ public class RvlService {
         }
     }
 
-    private static ObjectMapper getObjectMapper(){
+    private static ObjectMapper getObjectMapper() {
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.registerModule(new JavaTimeModule());
         objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
