@@ -21,7 +21,7 @@ public class AccountsController {
         try {
             return new BaseResponse(ResponseStatusEnum.SUCCESS, null, accountsDao.getAccounts());
         } catch (SQLException e) {
-            e.printStackTrace();
+            log.error("SQLException", e);
             return new BaseResponse(ResponseStatusEnum.ERROR, e.getMessage(), null);
         }
     }
@@ -34,7 +34,7 @@ public class AccountsController {
         } catch (NumberFormatException e) {
             return new BaseResponse(ResponseStatusEnum.ERROR, "Account id must be a number!", null);
         } catch (SQLException e) {
-            e.printStackTrace();
+            log.error("SQLException", e);
             return new BaseResponse(ResponseStatusEnum.ERROR, "SQLException " + e.getMessage(), null);
         }
 
@@ -58,11 +58,11 @@ public class AccountsController {
         try {
             accountsDao.addAccount(owner, new BigDecimal(balance), currency);
             log.info("Account created");
-            return new BaseResponse(ResponseStatusEnum.SUCCESS, "Account saved", null);
+            return new BaseResponse(ResponseStatusEnum.SUCCESS, "Account saved.", null);
         } catch (NumberFormatException e) {
             return new BaseResponse(ResponseStatusEnum.ERROR, "Balance should be a number!", null);
         } catch (SQLException e) {
-            e.printStackTrace();
+            log.error("SQLException", e);
             return new BaseResponse(ResponseStatusEnum.ERROR, "SQL Exception " + e.getMessage(), null);
         }
     }

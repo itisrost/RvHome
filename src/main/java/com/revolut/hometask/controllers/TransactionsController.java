@@ -8,8 +8,10 @@ import com.revolut.hometask.model.Transaction;
 import lombok.RequiredArgsConstructor;
 import com.revolut.hometask.model.BaseResponse;
 import com.revolut.hometask.model.ResponseStatusEnum;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
+@Slf4j
 @RequiredArgsConstructor
 public class TransactionsController {
 
@@ -19,7 +21,7 @@ public class TransactionsController {
         try {
             return new BaseResponse(ResponseStatusEnum.SUCCESS, null, transactionsDao.getTransactions());
         } catch (SQLException e) {
-            e.printStackTrace();
+            log.error("SQLException", e);
             return new BaseResponse(ResponseStatusEnum.ERROR, e.getMessage(), null);
         }
     }
@@ -30,7 +32,7 @@ public class TransactionsController {
         try {
             transaction = transactionsDao.getTransactionById(Integer.parseInt(id));
         } catch (SQLException e) {
-            e.printStackTrace();
+            log.error("SQLException", e);
             return new BaseResponse(ResponseStatusEnum.ERROR, e.getMessage(), null);
         } catch (NumberFormatException e) {
             return new BaseResponse(ResponseStatusEnum.ERROR, "Transaction id must be a number!", null);
@@ -55,9 +57,10 @@ public class TransactionsController {
 
         try {
             transactionsDao.makeTransaction(Integer.parseInt(debitAccount), Integer.parseInt(creditAccount), new BigDecimal(amount));
-            return new BaseResponse(ResponseStatusEnum.SUCCESS, "Transaction saved", null);
+            log.info("Transaction created");
+            return new BaseResponse(ResponseStatusEnum.SUCCESS, "Transaction saved.", null);
         } catch (SQLException e) {
-            e.printStackTrace();
+            log.error("SQLException", e);
             return new BaseResponse(ResponseStatusEnum.ERROR, "SQLException " + e.getMessage(), null);
         } catch (NumberFormatException e) {
             return new BaseResponse(ResponseStatusEnum.ERROR, "All parameters should be numbers!", null);
